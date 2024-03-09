@@ -219,9 +219,6 @@ app.post('/login', async (req, res) => {
     const user = await User.findOne({ username });
     const token = "fac"+jwt.sign({ username: user.username }, 'your-secret-key');
 
-    if (username === "om" && password === "omiii") {
-    return res.json({ token ,enroll:"123" });
-    }
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -236,7 +233,7 @@ app.post('/login', async (req, res) => {
 
     // Create and send a JWT token for successful login
     console.log(token);
-    res.json({ token ,enroll:"123" });
+    res.json({ token ,enroll:"123",name:user.name}); 
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -264,7 +261,7 @@ app.post('/loginstd', async (req, res) => {
     // Create and send a JWT token for successful login
     const token = "std"+jwt.sign({ username: user.enrollmentNo }, 'your-secret-key');
     console.log(token);
-    res.json({ token, enroll:username });
+    res.json({ token, enroll:username,name:user.fullName });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
