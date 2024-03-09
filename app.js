@@ -97,7 +97,7 @@ if (existingStudent) {
 
     }
 
-    console.log(std);
+    // console.log(std);
 
     res.json(std);
   } catch (error) {
