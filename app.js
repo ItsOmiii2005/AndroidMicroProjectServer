@@ -13,7 +13,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/AndroidServer?retryWrites=true&w=majority').then(() => {
+mongoose.connect('mongodb+srv://om:omiii@atlascluster.zo09joq.mongodb.net/AndroidServer?retryWrites=true&w=majority').then(() => {
     console.log('Connected to MongoDB');
 });
 
@@ -21,6 +21,7 @@ mongoose.connect('mongodb://localhost:27017/AndroidServer?retryWrites=true&w=maj
 const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   password: { type: String, required: true },
+  name: {type: String, required: true},
 });
 
 const User = mongoose.model('User', userSchema);
@@ -190,15 +191,15 @@ app.put('/updatestudent/:enrollmentNo', async (req, res) => {
 
 // Register endpoint
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  console.log(username, password);
+  const { username, password ,name} = req.body;
+  console.log(username, password,name);
 
   try {
     // Hash the password
     // const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save the user to the database
-    const user = new User({ username: username, password: password });
+    const user = new User({ username: username, password: password, name: name });
     await user.save();
     // res.status(201);
     res.json({ message: 'User registered successfully' });
@@ -229,9 +230,37 @@ app.post('/login', async (req, res) => {
     }
 
     // Create and send a JWT token for successful login
-    const token = jwt.sign({ username: user.username }, 'your-secret-key');
+    const token = "fac"+jwt.sign({ username: user.username }, 'your-secret-key');
     console.log(token);
-    res.json({ token });
+    res.json({ token ,enroll:"123" });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/loginstd', async (req, res) => {
+  const { username, password } = req.body;
+  console.log(username, password);
+
+  try {
+    // Find the user by username
+    const user = await Student.findOne({ enrollmentNo: username });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Compare the provided password with the stored hashed password
+    const passwordMatch = password === user.dob;
+
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Create and send a JWT token for successful login
+    const token = "std"+jwt.sign({ username: user.enrollmentNo }, 'your-secret-key');
+    console.log(token);
+    res.json({ token, enroll:username });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
